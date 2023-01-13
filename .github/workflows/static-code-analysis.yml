@@ -1,0 +1,20 @@
+name: 'Static Code Analysis'
+
+on:
+
+  workflow_call:
+
+jobs:
+
+  bicep-linter:
+    name: 'Bicep Linter'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout Repository'
+        uses: actions/checkout@v3
+
+      # Test Infrastructure-as-Code Bicep files Pre-Deployment
+      - shell: bash
+        run: |
+          find ${GITHUB_WORKSPACE} -name *.bicep -exec az bicep build --file {} --stdout \;
+        name: 'Bicep linter'
