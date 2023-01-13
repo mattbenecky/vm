@@ -1,0 +1,11 @@
+{ 
+  "adminUsername": "azureuser",
+  "createOption": "FromImage",
+  "disablePasswordAuthentication": true,
+  "offer": "0001-com-ubuntu-server-jammy",
+  "osDiskType": "Standard_LRS",
+  "publisher": "canonical",
+  "ubuntuOSVersion": "22_04-lts-gen2",
+  "version": "latest",
+  "vmSize": "Standard_B2s"
+}
