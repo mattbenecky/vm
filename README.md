@@ -39,11 +39,17 @@ curl -LJO https://raw.githubusercontent.com/mattbenecky/vm/main/src/infra/setup.
 ### AADSSHLoginForLinux
 This validates the virtual machine integration with Azure Active Directory (Azure AD) authentication with the ```AADSSHLoginForLinux``` extension. You can use Azure AD as a core authentication platform and a certificate authority to SSH into a Linux VM by using Azure AD and OpenSSH certificate-based authentication.
 
+![AAD](docs/images/aad.png)
+
 ### Run Command
 This validates the virtual machine Run Command feature which uses the VM agent to run shell scripts remotely with ```az vm run-command```. Run Command allows you to invoke commands through the Azure API without directly connecting to the virtual machine.
 
+![RunCommand](docs/images/run.png)
+
 ### SSH
 This validates connecting to the virtual machine using an ```SSH protocol 2 (SSH-2)``` RSA public-private key pair. The GitHub-hosted runner (SSH client) connects to the Azure VM using the network interface attached to the virtual machine.
+
+![SSH](docs/images/ssh.png)
 
 ## Cleaning Up
 
