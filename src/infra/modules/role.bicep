@@ -1,3 +1,7 @@
+// ----------
+// PARAMETERS
+// ----------
+
 param name string
 param principalId string
 
@@ -12,6 +16,10 @@ param principalId string
 param principalType string
 
 param roleDefinitionId string
+
+// ---------
+// RESOURCES
+// ---------
 
 resource role 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: name
