@@ -1,0 +1,125 @@
+name: 'Test VM'
+
+on:
+
+  workflow_dispatch:
+    inputs:
+      name:
+        description: 'Name: '
+        required: true
+        default: 'demo'
+      location:
+        description: 'Location: '
+        required: true
+        default: 'eastus'
+
+permissions:
+  # Required permission to request OIDC JWT ID token from GitHub's OIDC provider
+  contents: read
+  # Required permission to perform GitHub Action actions/checkout
+  id-token: write
+
+jobs:
+
+  run-command:
+    environment: Dev
+    name: 'Run Command'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v3
+      
+      # Authenticate with Azure via OIDC Federated Credential
+      - name: 'Azure Authentication via OIDC'
+        uses: Azure/login@v1
+        with:
+          allow-no-subscriptions: true
+          client-id: ${{ secrets.CLIENT_ID }}
+          tenant-id: ${{ secrets.TENANT_ID }}
+          subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
+
+      # Validate VM Deployment via run-command invoke
+      - name: 'run-command invoke'
+        uses: azure/CLI@v1
+        with:
+          # Execute hostnamectl command on VM via run-command invoke
+          inlineScript: |
+            vmName="vm${{ inputs.name }}"
+            rgName="rg-${{ inputs.name }}-Dev"
+            runCommand=$(az vm run-command invoke -g $rgName -n $vmName --command-id RunShellScript --scripts "hostnamectl" --query "[value][0][0].[message]" -o tsv)
+            OUTPUT=$(awk '{ sub(/.*stdout/, ""); sub(/stderr.*/, ""); print }' <<< "$runCommand" )
+            printf "$OUTPUT"
+
+  ssh:
+    environment: Dev
+    name: 'SSH'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v3
+      
+      # Authenticate with Azure via OIDC Federated Credential
+      - name: 'Azure Authentication via OIDC'
+        uses: Azure/login@v1
+        with:
+          allow-no-subscriptions: true
+          client-id: ${{ secrets.CLIENT_ID }}
+          tenant-id: ${{ secrets.TENANT_ID }}
+          subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
+      
+      # Get VM Public IP Address & Key Vault
+      - name: 'Configure GitHub-hosted Runner Environment'
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            pipName="pip-${{ inputs.name }}-Dev"
+            rgName="rg-${{ inputs.name }}-Dev"
+            IP_ADDRESS=$(az network public-ip show -g $rgName -n $pipName --query "[ipAddress]" -o tsv)
+            echo "ip=$IP_ADDRESS" >> $GITHUB_ENV
+            KV_NAME=$(az keyvault list -g $rgName --query "[0].[name]" -o tsv)
+            mkdir -p $GITHUB_WORKSPACE/.ssh
+            az keyvault secret download --name "ssh-pem" --vault-name $KV_NAME --file $GITHUB_WORKSPACE/.ssh/mykey.pem
+                   
+      # Netcat SSH Connection Status of Virtual Machine
+      - name: 'Test SSH Connection Status'
+        run: nc -zv ${{ env.ip }} 22
+        shell: bash
+
+      - name: 'SSH into Azure VM'
+        run: |
+          eval "$(ssh-agent -s)"
+          ssh-add -q $GITHUB_WORKSPACE/.ssh/mykey.pem 
+          ssh -o BatchMode=yes -o StrictHostKeyChecking=no -tt azureuser@${{ env.ip }} "hostnamectl"
+        shell: bash
+
+  AADSSHLoginForLinux:
+    environment: Dev
+    name: 'AADSSHLoginForLinux'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v3
+      
+      # Authenticate with Azure via OIDC Federated Credential
+      - name: 'Azure Authentication via OIDC'
+        uses: Azure/login@v1
+        with:
+          allow-no-subscriptions: true
+          client-id: ${{ secrets.CLIENT_ID }}
+          tenant-id: ${{ secrets.TENANT_ID }}
+          subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
+      
+      # AADSSHLoginForLinux
+      - name: 'AADSSHLoginForLinux'
+        uses: azure/CLI@v1
+        with:
+          inlineScript: |
+            vmName="vm${{ inputs.name }}"
+            rgName="rg-${{ inputs.name }}-Dev"
+            az config set extension.use_dynamic_install=yes_without_prompt
+            az extension add --name ssh
+            az ssh vm -n $vmName -g $rgName -- -o BatchMode=yes -o StrictHostKeyChecking=no -tt hostnamectl
+            
