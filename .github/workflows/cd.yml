@@ -51,3 +51,9 @@ jobs:
               --template-file 'src/infra/setup.bicep' \
               --parameters name=${{ inputs.name }} \
               --parameters 'src/infra/parameters/setup.parameters.json' 
+            az deployment sub create -o none \
+              --location ${{ inputs.location }} \
+              --name '${{ inputs.name }}-'$(date +"%Y%m%d%H%M%S") \
+              --template-file 'src/infra/main.bicep' \
+              --parameters name=${{ inputs.name }} \
+              --parameters 'src/infra/parameters/main.parameters.json' 
