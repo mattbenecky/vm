@@ -30,6 +30,8 @@ curl -LJO https://raw.githubusercontent.com/mattbenecky/vm/main/src/infra/setup.
 
 1. Run GitHub Actions workflow ```Deploy VM```
 
+![Deploy](docs/images/deploy.png)
+
 ## Test Virtual Machine
 
 1. Run GitHub Actions workflow ```Test VM```
