@@ -1,0 +1,6 @@
+{ 
+  "publicIPAllocationMethod": "Static",
+  "publicIPAddressVersion": "IPv4",
+  "idleTimeoutInMinutes": 4,
+  "skuName": "Basic"
+}
