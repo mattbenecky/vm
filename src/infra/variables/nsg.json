@@ -1,0 +1,18 @@
+{
+  "securityRules": [
+    {
+      "name": "SSH",
+      "properties": {
+        "access": "Allow",
+        "description": "Allow Inbound SSH from GitHub-hosted Runner.",
+        "destinationAddressPrefix": "*",
+        "destinationPortRange": "22",
+        "direction": "Inbound",
+        "priority": 300,
+        "protocol": "TCP",
+        "sourceAddressPrefix": "*",
+        "sourcePortRange": "*"
+      }
+    }
+  ]
+}
