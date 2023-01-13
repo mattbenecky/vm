@@ -25,3 +25,7 @@ curl -LJO https://raw.githubusercontent.com/mattbenecky/vm/main/src/infra/setup.
 ```SUBSCRIPTION_ID```
 
 ![Environment](docs/images/environment.png)
+
+## Deploy Virtual Machine
+
+1. Run GitHub Actions workflow ```Deploy VM```
